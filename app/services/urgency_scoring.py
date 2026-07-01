@@ -60,15 +60,17 @@ def calculate_urgency_breakdown(task: Task) -> UrgencyScoreBreakdown:
     severity_base = SEVERITY_MAPPING.get(max_severity, 2.5)
     severity_score = severity_base * WEIGHT_SEVERITY
 
-    # 2. Corroboration Score: Sum of corroboration count of reports
-    total_corroborations = sum(r.corroboration_count for r in reports)
+    # 2. Corroboration Score: Number of corroborating reports (len(reports))
+    # Note: Although NeedReport.corroboration_count is a real database field representing raw reporter counts,
+    # the task's corroboration is the count of distinct NeedReports merged into it.
+    total_corroborations = len(reports)
     corroboration_score = min(total_corroborations * WEIGHT_CORROBORATION, MAX_CORROBORATION_SCORE)
 
     # 3. Population Affected Score: Log-scaled sum of population affected
     total_population = sum(r.population_affected for r in reports)
     population_score = math.log10(total_population + 1) * WEIGHT_POPULATION
 
-    # 4. Raw Score
+    # 4. Raw Score (Sum of components before decay)
     raw_score = severity_score + corroboration_score + population_score
 
     # 5. Decay Factor: Time difference in days since the most recent report timestamp
@@ -91,13 +93,17 @@ def calculate_urgency_breakdown(task: Task) -> UrgencyScoreBreakdown:
     decay_factor = math.exp(-DECAY_RATE_DAILY * days_old)
 
     # 6. Final Score (Capped at 10.0)
-    final_score = min(raw_score * decay_factor, 10.0)
+    # Apply decay only to the recency-sensitive components (corroboration, population) rather than severity.
+    # Reasoning: A high-severity core need (like medical crisis or shelter collapse) remains critical even
+    # if no new reports have arrived. Our confidence in corroborations and population size, however, decays.
+    decayed_recency_sensitive = (corroboration_score + population_score) * decay_factor
+    final_score = min(severity_score + decayed_recency_sensitive, 10.0)
 
     reasoning = (
         f"Base Raw Score: {raw_score:.2f} (Severity contribution: {severity_score:.2f} [{max_severity.value}], "
         f"Corroboration contribution: {corroboration_score:.2f} [count: {total_corroborations}], "
         f"Population contribution: {population_score:.2f} [affected: {total_population}]). "
-        f"Time decay: {decay_factor:.4f} (Age: {days_old:.2f} days old). "
+        f"Time decay factor {decay_factor:.4f} applied to recency-sensitive components (Age: {days_old:.2f} days old). "
         f"Final Urgency Score: {final_score:.2f}/10."
     )
 
@@ -119,6 +125,7 @@ def calculate_urgency_breakdown(task: Task) -> UrgencyScoreBreakdown:
 def recompute_task_urgency(task: Task, db: Session) -> Task:
     """
     Recalculates the urgency score and saves the result in task.urgency_score and task.urgency_reasoning.
+    Used for updating a single task immediately.
     """
     breakdown = calculate_urgency_breakdown(task)
     task.urgency_score = breakdown.final_score
@@ -129,11 +136,15 @@ def recompute_task_urgency(task: Task, db: Session) -> Task:
 
 def batch_recompute_open_tasks(db: Session) -> List[int]:
     """
-    Recomputes the urgency score for all open tasks.
+    Recomputes the urgency score for all open tasks in a single batch commit.
     """
     tasks = db.query(Task).filter(Task.status == TaskStatus.OPEN).all()
     updated_ids = []
     for task in tasks:
-        recompute_task_urgency(task, db)
+        breakdown = calculate_urgency_breakdown(task)
+        task.urgency_score = breakdown.final_score
+        task.urgency_reasoning = breakdown.model_dump()
         updated_ids.append(task.id)
+    if updated_ids:
+        db.commit()
     return updated_ids

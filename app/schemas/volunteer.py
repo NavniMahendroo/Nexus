@@ -39,3 +39,8 @@ class VolunteerResponse(VolunteerBase):
             elif hasattr(data, field):
                 res[field] = getattr(data, field)
         return res
+
+class VolunteerNearbyResponse(BaseModel):
+    volunteer: VolunteerResponse
+    distance_km: float
+

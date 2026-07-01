@@ -11,6 +11,8 @@ modules_to_test = [
     ("pandas", "Pandas"),
     ("openpyxl", "openpyxl (Excel engine)"),
     ("shapely", "Shapely"),
+    ("scipy", "Scipy (Optimization tool)"),
+    ("numpy", "NumPy"),
 ]
 
 missing_any = False
@@ -44,10 +46,13 @@ app_imports = [
     "app.services.taxonomy",
     "app.services.ingestion",
     "app.services.urgency_scoring",
+    "app.services.geospatial",
+    "app.services.matching",
     "app.routers.organization",
     "app.routers.volunteer",
     "app.routers.need_report",
     "app.routers.tasks",
+    "app.routers.matching",
     "app.main"
 ]
 
