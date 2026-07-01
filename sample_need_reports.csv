@@ -1,0 +1,6 @@
+description,latitude,longitude,severity,reported_by_id,population_affected,corroboration_count,raw_category
+Clean drinking water is needed urgently at the community clinic.,40.7128,-74.0060,critical,1,150,3,drinking water
+First aid kit supplies and bandages are exhausted.,40.7150,-74.0080,high,1,50,2,medical supplies
+Requesting temporary shelter tents for families displaced by flooding.,40.7200,-74.0100,critical,1,80,1,shelter housing
+Non-perishable food rations needed for distributing to elderly residents.,40.7100,-74.0020,medium,1,40,1,food supplies
+Debris clearing needed on Main Street.,40.7180,-74.0050,low,1,10,1,debris clearing
