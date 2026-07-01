@@ -6,6 +6,9 @@ from app.models.need_report import NeedReport
 from app.models.enums import NeedSeverity, NeedStatus
 from app.models.organization import Organization
 from app.services.taxonomy import normalize_category
+from app.services.deduplication import generate_embedding, find_potential_duplicates
+from app.models.duplicate_candidate import DuplicateCandidate
+
 
 def parse_and_insert_need_reports(
     file_bytes: bytes,
@@ -141,7 +144,8 @@ def parse_and_insert_need_reports(
             reported_by_id=reported_by_id,
             status=NeedStatus.RAW,
             population_affected=population_affected,
-            corroboration_count=corroboration_count
+            corroboration_count=corroboration_count,
+            embedding=generate_embedding(description)
         )
         need_reports_to_insert.append(need_report)
 
@@ -150,6 +154,24 @@ def parse_and_insert_need_reports(
     if need_reports_to_insert:
         db.add_all(need_reports_to_insert)
         db.commit()
+
+        # Run duplicate detection for the newly inserted reports
+        duplicate_candidates = []
+        for report in need_reports_to_insert:
+            potential_duplicates = find_potential_duplicates(report, db)
+            for dup_report, score in potential_duplicates:
+                candidate = DuplicateCandidate(
+                    report_id=report.id,
+                    duplicate_report_id=dup_report.id,
+                    similarity_score=score,
+                    status="pending"
+                )
+                duplicate_candidates.append(candidate)
+
+        if duplicate_candidates:
+            db.add_all(duplicate_candidates)
+            db.commit()
+
         inserted_count = len(need_reports_to_insert)
 
     failed_count = len(errors)

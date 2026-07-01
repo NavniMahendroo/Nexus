@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
+from app.core.security import require_role
 from app.models.task import Task
 from app.models.need_report import NeedReport
 from app.models.enums import NeedStatus, TaskStatus
@@ -80,7 +81,7 @@ def get_task_urgency_breakdown(task_id: int, db: Session = Depends(get_db)):
     return calculate_urgency_breakdown(task)
 
 @router.post("/recompute-urgency", status_code=status.HTTP_200_OK)
-def trigger_batch_recompute(db: Session = Depends(get_db)):
+def trigger_batch_recompute(db: Session = Depends(get_db), claims: dict = Depends(require_role(["admin"]))):
     """
     Batch recomputes the urgency scores and reasoning breakdown for all open tasks.
     """

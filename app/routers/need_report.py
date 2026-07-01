@@ -5,9 +5,11 @@ from app.core.database import get_db
 from app.models.need_report import NeedReport
 from app.models.organization import Organization
 from app.models.enums import NeedStatus
+from app.models.duplicate_candidate import DuplicateCandidate
 from app.schemas.need_report import NeedReportCreate, NeedReportResponse
 from app.services.taxonomy import normalize_category
 from app.services.ingestion import parse_and_insert_need_reports
+from app.services.deduplication import generate_embedding, find_potential_duplicates
 
 router = APIRouter(prefix="/api/reports", tags=["Need Reports"])
 
@@ -15,7 +17,8 @@ router = APIRouter(prefix="/api/reports", tags=["Need Reports"])
 def create_need_report(payload: NeedReportCreate, db: Session = Depends(get_db)):
     """
     Intake form endpoint for NGOs to submit raw need reports.
-    Validates the reporter ID, normalizes the raw category, and saves the report.
+    Validates the reporter ID, normalizes the raw category, generates a text
+    embedding, searches for semantic duplicates, and saves everything.
     """
     # Verify organization exists
     org = db.query(Organization).filter(Organization.id == payload.reported_by_id).first()
@@ -28,6 +31,9 @@ def create_need_report(payload: NeedReportCreate, db: Session = Depends(get_db))
     # Normalize category using raw_category and description
     category = normalize_category(payload.raw_category, payload.description)
 
+    # Generate semantic description embedding
+    embedding = generate_embedding(payload.description)
+
     db_report = NeedReport(
         category=category,
         raw_category=payload.raw_category,
@@ -37,12 +43,28 @@ def create_need_report(payload: NeedReportCreate, db: Session = Depends(get_db))
         reported_by_id=payload.reported_by_id,
         population_affected=payload.population_affected,
         corroboration_count=payload.corroboration_count,
-        status=NeedStatus.RAW
+        status=NeedStatus.RAW,
+        embedding=embedding
     )
 
     db.add(db_report)
     db.commit()
     db.refresh(db_report)
+
+    # Run duplicate detection (semantic similarity & spatial filter)
+    potential_duplicates = find_potential_duplicates(db_report, db)
+    for dup_report, score in potential_duplicates:
+        candidate = DuplicateCandidate(
+            report_id=db_report.id,
+            duplicate_report_id=dup_report.id,
+            similarity_score=score,
+            status="pending"
+        )
+        db.add(candidate)
+    
+    if potential_duplicates:
+        db.commit()
+
     return db_report
 
 @router.post("/bulk", status_code=status.HTTP_200_OK)

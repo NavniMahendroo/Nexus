@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SqlEnum, func
+from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, Enum as SqlEnum, func, JSON
 from sqlalchemy.orm import relationship
 from geoalchemy2 import Geography
 from app.models.base import Base
@@ -19,7 +19,9 @@ class NeedReport(Base):
     population_affected = Column(Integer, nullable=False, default=1)
     corroboration_count = Column(Integer, nullable=False, default=1)
     task_id = Column(Integer, ForeignKey("tasks.id", ondelete="SET NULL"), nullable=True)
+    embedding = Column(JSON, nullable=True)  # JSON-serialized list of floats (sentence embedding)
 
     # Relationships
     reporter = relationship("Organization", back_populates="reports")
     task = relationship("Task", back_populates="need_reports")
+

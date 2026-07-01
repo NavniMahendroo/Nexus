@@ -5,6 +5,7 @@ from app.models.volunteer import Volunteer
 from app.models.need_report import NeedReport
 from app.models.task import Task
 from app.models.assignment import Assignment
+from app.models.duplicate_candidate import DuplicateCandidate
 
 __all__ = [
     "Base",
@@ -17,5 +18,6 @@ __all__ = [
     "Volunteer",
     "NeedReport",
     "Task",
-    "Assignment"
+    "Assignment",
+    "DuplicateCandidate"
 ]

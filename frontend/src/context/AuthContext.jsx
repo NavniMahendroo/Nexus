@@ -1,0 +1,81 @@
+import React, { createContext, useState, useContext, useEffect } from 'react';
+
+const AuthContext = createContext(null);
+
+export const AuthProvider = ({ children }) => {
+  const [token, setToken] = useState(localStorage.getItem('access_token'));
+  const [role, setRole] = useState(localStorage.getItem('user_role'));
+  const [username, setUsername] = useState(localStorage.getItem('username'));
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check local storage validity
+    const savedToken = localStorage.getItem('access_token');
+    const savedRole = localStorage.getItem('user_role');
+    const savedUser = localStorage.getItem('username');
+    if (savedToken && savedRole && savedUser) {
+      setToken(savedToken);
+      setRole(savedRole);
+      setUsername(savedUser);
+    }
+    setLoading(false);
+  }, []);
+
+  const login = async (usernameInput, passwordInput) => {
+    try {
+      const response = await fetch('http://localhost:8000/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username: usernameInput, password: passwordInput })
+      });
+      if (!response.ok) {
+        throw new Error('Invalid login credentials');
+      }
+      const data = await response.json();
+      localStorage.setItem('access_token', data.access_token);
+      localStorage.setItem('user_role', data.role);
+      localStorage.setItem('username', data.username);
+      setToken(data.access_token);
+      setRole(data.role);
+      setUsername(data.username);
+      return data;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('user_role');
+    localStorage.removeItem('username');
+    setToken(null);
+    setRole(null);
+    setUsername(null);
+  };
+
+  // Helper API fetch wrapper with automatic JWT Authorization header
+  const authFetch = async (url, options = {}) => {
+    const headers = {
+      'Content-Type': 'application/json',
+      ...options.headers,
+    };
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+    const res = await fetch(url, { ...options, headers });
+    if (res.status === 401) {
+      logout();
+      throw new Error('Session expired, please log in again.');
+    }
+    return res;
+  };
+
+  return (
+    <AuthContext.Provider value={{ token, role, username, login, logout, authFetch, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

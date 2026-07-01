@@ -13,6 +13,7 @@ modules_to_test = [
     ("shapely", "Shapely"),
     ("scipy", "Scipy (Optimization tool)"),
     ("numpy", "NumPy"),
+    ("sentence_transformers", "Sentence Transformers"),
 ]
 
 missing_any = False
@@ -53,6 +54,10 @@ app_imports = [
     "app.routers.need_report",
     "app.routers.tasks",
     "app.routers.matching",
+    "app.models.duplicate_candidate",
+    "app.schemas.duplicate_candidate",
+    "app.services.deduplication",
+    "app.routers.admin",
     "app.main"
 ]
 
