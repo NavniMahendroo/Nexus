@@ -126,7 +126,7 @@ export default function Login() {
           )}
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4" autoComplete="off">
             <div>
               <label className="block text-[10px] font-black uppercase tracking-wider text-slate-500 mb-2">Username</label>
               <div className="relative">
@@ -139,6 +139,7 @@ export default function Login() {
                   value={usernameInput}
                   onChange={(e) => setUsernameInput(e.target.value)}
                   placeholder="admin or volunteer"
+                  autoComplete="off"
                   className="w-full bg-slate-950 border border-slate-850 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/10 input-premium"
                 />
               </div>
@@ -156,6 +157,7 @@ export default function Login() {
                   value={passwordInput}
                   onChange={(e) => setPasswordInput(e.target.value)}
                   placeholder="••••••••"
+                  autoComplete="new-password"
                   className="w-full bg-slate-950 border border-slate-850 rounded-xl py-3 pl-11 pr-4 text-sm text-slate-100 placeholder-slate-600 focus:outline-none focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/10 input-premium"
                 />
               </div>
