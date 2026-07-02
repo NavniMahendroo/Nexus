@@ -2,6 +2,40 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Check, X, ShieldAlert, Navigation, Calendar, Award, Compass, Sparkles, User, Briefcase, Activity, Inbox, FolderCheck, Archive, Zap, Settings } from 'lucide-react';
 
+const AVATAR_OPTIONS = [
+  { id: 'adventurer', url: 'https://api.dicebear.com/7.x/adventurer/svg?seed=Felix&mouth=smile' },
+  { id: 'bottts', url: 'https://api.dicebear.com/7.x/bottts/svg?seed=Aneka' },
+  { id: 'avataaars', url: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Jack' },
+  { id: 'lorelei', url: 'https://api.dicebear.com/7.x/lorelei/svg?seed=Sassy' },
+  { id: 'personas', url: 'https://api.dicebear.com/7.x/personas/svg?seed=Boots' },
+  { id: 'miniavs', url: 'https://api.dicebear.com/7.x/miniavs/svg?seed=Nala' }
+];
+
+const AvatarImage = ({ src, alt, className, fallbackSize = 6 }) => {
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    setError(false);
+  }, [src]);
+
+  if (error) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-slate-900/60 rounded-xl text-slate-500">
+        <User className={`w-${fallbackSize} h-${fallbackSize}`} />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      onError={() => setError(true)}
+      className={className}
+    />
+  );
+};
+
 export default function VolunteerDashboard() {
   const { authFetch, username, organizationId } = useAuth();
   const [assignments, setAssignments] = useState([]);
@@ -9,6 +43,14 @@ export default function VolunteerDashboard() {
   const [actioningId, setActioningId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState('pending'); // 'pending', 'active', 'completed'
   const [showSettings, setShowSettings] = useState(false);
+  const [selectedAvatar, setSelectedAvatar] = useState(
+    localStorage.getItem(`volunteer_avatar_${username}`) || AVATAR_OPTIONS[0].url
+  );
+
+  const handleSelectAvatar = (url) => {
+    setSelectedAvatar(url);
+    localStorage.setItem(`volunteer_avatar_${username}`, url);
+  };
 
   const fetchAssignments = async () => {
     setLoading(true);
@@ -116,10 +158,16 @@ export default function VolunteerDashboard() {
         </div>
         <button
           onClick={() => setShowSettings(true)}
-          className="h-16 w-16 flex items-center justify-center rounded-2xl bg-sky-500/5 border border-sky-500/15 hover:border-sky-400 hover:bg-sky-500/10 text-sky-400 shadow-xl shadow-slate-950 hover:scale-105 transition-all cursor-pointer group shrink-0"
+          className="h-16 w-16 relative flex items-center justify-center rounded-2xl bg-slate-950 border border-sky-500/15 hover:border-sky-400/50 hover:bg-sky-500/10 text-sky-400 shadow-xl shadow-slate-950 hover:scale-105 transition-all cursor-pointer overflow-hidden p-1.5 shrink-0 group"
           title="Profile & Settings"
         >
-          <Settings className="w-8 h-8 group-hover:rotate-45 transition-transform duration-300" />
+          <AvatarImage 
+            src={selectedAvatar} 
+            alt="Profile Avatar"
+            className="w-full h-full rounded-xl object-contain group-hover:opacity-40 transition-opacity"
+            fallbackSize={6}
+          />
+          <Settings className="absolute w-6 h-6 text-sky-400 opacity-0 group-hover:opacity-100 transition-opacity rotate-0 group-hover:rotate-45 duration-300 pointer-events-none" />
         </button>
       </div>
 
@@ -333,14 +381,37 @@ export default function VolunteerDashboard() {
             </button>
 
             <div className="flex flex-col items-center space-y-3.5 border-b border-slate-850 pb-5">
-              <img 
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80" 
-                alt="Profile Avatar"
-                className="w-20 h-20 rounded-full border-2 border-brand-500 shadow-lg object-cover"
-              />
+              <div className="w-20 h-20 rounded-full border-2 border-brand-500 shadow-lg bg-slate-950 p-1 overflow-hidden flex items-center justify-center">
+                <AvatarImage 
+                  src={selectedAvatar} 
+                  alt="Profile Avatar"
+                  className="w-full h-full rounded-full object-contain"
+                  fallbackSize={8}
+                />
+              </div>
               <div className="text-center">
                 <h3 className="text-lg font-black text-slate-100">{username}</h3>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500">nexus volunteer profile</span>
+              </div>
+            </div>
+
+            {/* Avatar Selector Options */}
+            <div className="space-y-2 border-b border-slate-850 pb-5">
+              <span className="text-[9px] text-slate-500 uppercase tracking-widest block font-black">Choose your character</span>
+              <div className="flex gap-2 justify-center">
+                {AVATAR_OPTIONS.map(opt => (
+                  <button
+                    key={opt.id}
+                    onClick={() => handleSelectAvatar(opt.url)}
+                    className={`w-9 h-9 rounded-xl p-1 bg-slate-950 border transition-all cursor-pointer hover:scale-110 flex items-center justify-center ${
+                      selectedAvatar === opt.url 
+                        ? 'border-brand-500 ring-2 ring-brand-500/20' 
+                        : 'border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    <AvatarImage src={opt.url} alt={opt.id} className="w-full h-full object-contain" fallbackSize={4} />
+                  </button>
+                ))}
               </div>
             </div>
 
