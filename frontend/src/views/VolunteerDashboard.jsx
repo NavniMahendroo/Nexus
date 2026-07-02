@@ -121,6 +121,15 @@ export default function VolunteerDashboard() {
                       }`}>
                         {asg.status.toUpperCase()}
                       </span>
+                      {isAccepted && asg.task_status && (
+                        <span className={`text-[10px] uppercase font-bold px-2 py-0.5 rounded ${
+                          asg.task_status === 'in_progress' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20 animate-pulse' :
+                          asg.task_status === 'completed' ? 'bg-green-500/10 text-green-400 border border-green-500/20' :
+                          'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                        }`}>
+                          Task: {asg.task_status.replace('_', ' ')}
+                        </span>
+                      )}
                     </div>
 
                     <div className="space-y-1">
@@ -169,17 +178,27 @@ export default function VolunteerDashboard() {
                         <div className="grid grid-cols-2 gap-2">
                           <button
                             onClick={() => handleUpdateStatus(asg.id, 'in_progress')}
-                            disabled={actioningId !== null}
-                            className="text-[10px] text-brand-400 border border-brand-500/20 bg-brand-500/10 hover:bg-brand-500/20 font-bold py-1.5 px-3 rounded cursor-pointer transition-all"
+                            disabled={actioningId !== null || asg.task_status === 'in_progress' || asg.task_status === 'completed'}
+                            className={`text-[10px] font-bold py-1.5 px-3 rounded transition-all ${
+                              asg.task_status === 'in_progress' 
+                                ? 'bg-blue-500/25 text-blue-300 border border-blue-500/40 cursor-default'
+                                : asg.task_status === 'completed'
+                                ? 'bg-slate-800 text-slate-650 border border-slate-700/50 text-slate-500 cursor-not-allowed'
+                                : 'text-brand-400 border border-brand-500/20 bg-brand-500/10 hover:bg-brand-500/20 cursor-pointer'
+                            }`}
                           >
-                            Mark In Progress
+                            {asg.task_status === 'in_progress' ? 'In Progress' : 'Mark In Progress'}
                           </button>
                           <button
                             onClick={() => handleUpdateStatus(asg.id, 'completed')}
-                            disabled={actioningId !== null}
-                            className="text-[10px] text-green-400 border border-green-500/20 bg-green-500/10 hover:bg-green-500/20 font-bold py-1.5 px-3 rounded cursor-pointer transition-all"
+                            disabled={actioningId !== null || asg.task_status === 'completed'}
+                            className={`text-[10px] font-bold py-1.5 px-3 rounded transition-all ${
+                              asg.task_status === 'completed'
+                                ? 'bg-green-500/25 text-green-300 border border-green-500/40 cursor-default'
+                                : 'text-green-400 border border-green-500/20 bg-green-500/10 hover:bg-green-500/20 cursor-pointer'
+                            }`}
                           >
-                            Mark Completed
+                            {asg.task_status === 'completed' ? 'Completed' : 'Mark Completed'}
                           </button>
                         </div>
                       </div>

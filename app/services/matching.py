@@ -109,7 +109,7 @@ def calculate_match_score(
         f"{avail_reason}, task urgency score {task_urgency:.1f}/10"
     )
 
-    return match_score, explanation
+    return float(match_score), explanation
 
 
 class GreedyMatchingStrategy:

@@ -164,6 +164,16 @@ def update_assignment_status(assignment_id: int, task_status: TaskStatus = Query
     db.refresh(assignment)
     return assignment
 
+@router.get("/proposed", response_model=List[AssignmentResponse], status_code=status.HTTP_200_OK)
+def list_proposed_assignments(
+    db: Session = Depends(get_db),
+    claims: dict = Depends(require_role(["volunteer", "admin"]))
+):
+    """
+    Lists all assignments in the system.
+    """
+    return db.query(Assignment).all()
+
 @router.get("/compare", status_code=status.HTTP_200_OK)
 def compare_matching_strategies(db: Session = Depends(get_db), claims: dict = Depends(require_role(["admin"]))):
     """
