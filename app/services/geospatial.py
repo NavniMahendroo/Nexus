@@ -3,7 +3,7 @@ import logging
 import shapely.wkt
 from geoalchemy2.elements import WKBElement
 from geoalchemy2.shape import to_shape
-from geoalchemy2 import func
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from typing import List, Tuple
 from app.models.task import Task

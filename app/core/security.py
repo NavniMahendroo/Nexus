@@ -1,19 +1,20 @@
+import hashlib
 import jwt
 from datetime import datetime, timedelta, timezone
-from passlib.context import CryptContext
 from typing import Union, Any
 
 SECRET_KEY = "super-secret-key-for-nexus-app-portfolio-deduplication"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 120
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return pwd_context.verify(plain_password, hashed_password)
+    salt = "nexus_disaster_salt"
+    calc_hash = hashlib.sha256((plain_password + salt).encode('utf-8')).hexdigest()
+    return calc_hash == hashed_password
 
 def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+    salt = "nexus_disaster_salt"
+    return hashlib.sha256((password + salt).encode('utf-8')).hexdigest()
 
 def create_access_token(subject: Union[str, Any], role: str, expires_delta: timedelta = None) -> str:
     if expires_delta:

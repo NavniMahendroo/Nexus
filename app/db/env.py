@@ -16,8 +16,10 @@ config = context.config
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set database URL dynamically from app settings
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+# Set database URL dynamically from app settings. We escape '%' as '%%' to prevent
+# configparser interpolation errors in Alembic.
+db_url = settings.DATABASE_URL.replace("%", "%%") if settings.DATABASE_URL else settings.DATABASE_URL
+config.set_main_option("sqlalchemy.url", db_url)
 
 # add your model's MetaData object here
 # for 'autogenerate' support
@@ -74,6 +76,10 @@ def run_migrations_online() -> None:
         with context.begin_transaction():
             # Enable postgis extension if not already present
             connection.execute(text("CREATE EXTENSION IF NOT EXISTS postgis;"))
+            
+            # Dynamically create all base tables (volunteers, need_reports, etc.) if they do not exist yet
+            Base.metadata.create_all(bind=connectable)
+            
             context.run_migrations()
 
 

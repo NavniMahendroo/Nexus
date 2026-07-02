@@ -3,8 +3,8 @@ import math
 import numpy as np
 import logging
 from typing import List, Tuple
+from sqlalchemy import func, JSON
 from sqlalchemy.orm import Session
-from geoalchemy2 import func
 from app.models.need_report import NeedReport
 from app.models.enums import NeedStatus
 from app.services.geospatial import get_coords, haversine_distance

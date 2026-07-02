@@ -1,0 +1,37 @@
+# Environment variables
+.env
+
+# Python virtual environment
+venv/
+ENV/
+env/
+
+# Python cache & compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Node dependencies (React Frontend)
+node_modules/
+frontend/node_modules/
+
+# Frontend builds
+frontend/dist/
+frontend/build/
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.swp
+
+# OS generated files
+.DS_Store
+Thumbs.db

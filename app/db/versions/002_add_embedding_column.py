@@ -18,24 +18,30 @@ depends_on: Union[str, Sequence[str], None] = None
 
 
 def upgrade() -> None:
-    # Add embedding column to need_reports table.
-    # We use a JSON column to store the serialized array of floats representing the sentence embedding.
-    # This allows database portability (works out-of-the-box on both Postgres and SQLite without native extensions like pgvector).
-    op.add_column('need_reports', sa.Column('embedding', sa.JSON(), nullable=True))
+    # Get database inspector to verify existing tables and columns
+    conn = op.get_bind()
+    inspector = sa.inspect(conn)
 
-    # Create duplicate_candidates table
-    op.create_table(
-        'duplicate_candidates',
-        sa.Column('id', sa.Integer(), nullable=False),
-        sa.Column('report_id', sa.Integer(), nullable=False),
-        sa.Column('duplicate_report_id', sa.Integer(), nullable=False),
-        sa.Column('similarity_score', sa.Float(), nullable=False),
-        sa.Column('status', sa.String(), nullable=False, server_default='pending'),
-        sa.ForeignKeyConstraint(['duplicate_report_id'], ['need_reports.id'], ondelete='CASCADE'),
-        sa.ForeignKeyConstraint(['report_id'], ['need_reports.id'], ondelete='CASCADE'),
-        sa.PrimaryKeyConstraint('id')
-    )
-    op.create_index(op.f('ix_duplicate_candidates_id'), 'duplicate_candidates', ['id'], unique=False)
+    # 1. Conditionally add embedding column if it doesn't already exist
+    columns = [c['name'] for c in inspector.get_columns('need_reports')]
+    if 'embedding' not in columns:
+        op.add_column('need_reports', sa.Column('embedding', sa.JSON(), nullable=True))
+
+    # 2. Conditionally create duplicate_candidates table if it doesn't already exist
+    tables = inspector.get_table_names()
+    if 'duplicate_candidates' not in tables:
+        op.create_table(
+            'duplicate_candidates',
+            sa.Column('id', sa.Integer(), nullable=False),
+            sa.Column('report_id', sa.Integer(), nullable=False),
+            sa.Column('duplicate_report_id', sa.Integer(), nullable=False),
+            sa.Column('similarity_score', sa.Float(), nullable=False),
+            sa.Column('status', sa.String(), nullable=False, server_default='pending'),
+            sa.ForeignKeyConstraint(['duplicate_report_id'], ['need_reports.id'], ondelete='CASCADE'),
+            sa.ForeignKeyConstraint(['report_id'], ['need_reports.id'], ondelete='CASCADE'),
+            sa.PrimaryKeyConstraint('id')
+        )
+        op.create_index(op.f('ix_duplicate_candidates_id'), 'duplicate_candidates', ['id'], unique=False)
 
 
 def downgrade() -> None:

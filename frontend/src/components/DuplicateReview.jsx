@@ -11,7 +11,7 @@ export default function DuplicateReview() {
   const fetchCandidates = async () => {
     setLoading(true);
     try {
-      const res = await authFetch('http://localhost:8000/api/admin/duplicate-candidates');
+      const res = await authFetch('http://127.0.0.1:8000/api/admin/duplicate-candidates');
       if (res.ok) {
         const data = await res.json();
         setCandidates(data);
@@ -30,7 +30,7 @@ export default function DuplicateReview() {
   const handleMerge = async (candidateId) => {
     setActioningId(candidateId);
     try {
-      const res = await authFetch(`http://localhost:8000/api/admin/duplicate-candidates/${candidateId}/merge`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/admin/duplicate-candidates/${candidateId}/merge`, {
         method: 'POST'
       });
       if (res.ok) {
@@ -50,7 +50,7 @@ export default function DuplicateReview() {
   const handleReject = async (candidateId) => {
     setActioningId(candidateId);
     try {
-      const res = await authFetch(`http://localhost:8000/api/admin/duplicate-candidates/${candidateId}/reject`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/admin/duplicate-candidates/${candidateId}/reject`, {
         method: 'POST'
       });
       if (res.ok) {

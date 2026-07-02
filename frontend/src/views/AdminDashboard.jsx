@@ -19,7 +19,7 @@ export default function AdminDashboard() {
   const fetchTasks = async () => {
     setLoadingTasks(true);
     try {
-      const res = await authFetch('http://localhost:8000/api/tasks/');
+      const res = await authFetch('http://127.0.0.1:8000/api/tasks/');
       if (res.ok) {
         const data = await res.json();
         setTasks(data);
@@ -33,7 +33,7 @@ export default function AdminDashboard() {
 
   const fetchUrgencyBreakdown = async (taskId) => {
     try {
-      const res = await authFetch(`http://localhost:8000/api/tasks/${taskId}/urgency-breakdown`);
+      const res = await authFetch(`http://127.0.0.1:8000/api/tasks/${taskId}/urgency-breakdown`);
       if (res.ok) {
         const data = await res.json();
         setSelectedTaskBreakdown(data);
@@ -51,7 +51,7 @@ export default function AdminDashboard() {
   const handleTriggerRecompute = async () => {
     setRecomputing(true);
     try {
-      const res = await authFetch('http://localhost:8000/api/tasks/recompute-urgency', {
+      const res = await authFetch('http://127.0.0.1:8000/api/tasks/recompute-urgency', {
         method: 'POST'
       });
       if (res.ok) {

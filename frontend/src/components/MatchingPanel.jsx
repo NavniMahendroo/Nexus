@@ -12,7 +12,7 @@ export default function MatchingPanel() {
 
   const fetchComparison = async () => {
     try {
-      const res = await authFetch('http://localhost:8000/api/matching/compare');
+      const res = await authFetch('http://127.0.0.1:8000/api/matching/compare');
       if (res.ok) {
         const data = await res.json();
         setCompareData(data);
@@ -29,7 +29,7 @@ export default function MatchingPanel() {
   const runMatching = async () => {
     setLoading(true);
     try {
-      const res = await authFetch(`http://localhost:8000/api/matching/run?strategy=${strategy}`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/matching/run?strategy=${strategy}`, {
         method: 'POST'
       });
       if (res.ok) {
@@ -48,7 +48,7 @@ export default function MatchingPanel() {
   const handleConfirm = async (assignmentId) => {
     setActioningId(assignmentId);
     try {
-      const res = await authFetch(`http://localhost:8000/api/matching/confirm/${assignmentId}`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/matching/confirm/${assignmentId}`, {
         method: 'POST'
       });
       if (res.ok) {

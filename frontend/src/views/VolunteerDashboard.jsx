@@ -12,7 +12,7 @@ export default function VolunteerDashboard() {
     setLoading(true);
     try {
       // For demo, load all assignments (normally filter by logged-in volunteer id/username)
-      const res = await authFetch('http://localhost:8000/api/matching/proposed');
+      const res = await authFetch('http://127.0.0.1:8000/api/matching/proposed');
       if (res.ok) {
         const data = await res.json();
         setAssignments(data);
@@ -31,7 +31,7 @@ export default function VolunteerDashboard() {
   const handleAccept = async (id) => {
     setActioningId(id);
     try {
-      const res = await authFetch(`http://localhost:8000/api/matching/confirm/${id}`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/matching/confirm/${id}`, {
         method: 'POST'
       });
       if (res.ok) {
@@ -47,7 +47,7 @@ export default function VolunteerDashboard() {
   const handleDecline = async (id) => {
     setActioningId(id);
     try {
-      const res = await authFetch(`http://localhost:8000/api/matching/decline/${id}`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/matching/decline/${id}`, {
         method: 'POST'
       });
       if (res.ok) {
@@ -63,7 +63,7 @@ export default function VolunteerDashboard() {
   const handleUpdateStatus = async (id, newStatus) => {
     setActioningId(id);
     try {
-      const res = await authFetch(`http://localhost:8000/api/matching/status/${id}?task_status=${newStatus}`, {
+      const res = await authFetch(`http://127.0.0.1:8000/api/matching/status/${id}?task_status=${newStatus}`, {
         method: 'POST'
       });
       if (res.ok) {

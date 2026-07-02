@@ -34,7 +34,7 @@ def get_open_tasks_and_available_volunteers(db: Session):
 
 @router.post("/run", response_model=List[AssignmentResponse], status_code=status.HTTP_200_OK)
 def run_matching(
-    strategy: str = Query(..., regex="^(greedy|optimal)$", description="Matching strategy to use: 'greedy' or 'optimal'"),
+    strategy: str = Query(..., pattern="^(greedy|optimal)$", description="Matching strategy to use: 'greedy' or 'optimal'"),
     db: Session = Depends(get_db),
     claims: dict = Depends(require_role(["admin"]))
 ):
