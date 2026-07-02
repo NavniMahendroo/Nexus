@@ -8,20 +8,87 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0f172a;
+  background: #090d16;
 }
 ::-webkit-scrollbar-thumb {
-  background: #334155;
+  background: #1e293b;
   border-radius: 4px;
+  border: 1px solid rgba(255, 255, 255, 0.03);
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #475569;
+  background: #334155;
 }
 
-/* Glassmorphism utility */
+/* Base Body Background styling with custom radial mesh gradients */
+body {
+  background-color: #0b0f19;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(2, 132, 199, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(12, 74, 110, 0.15) 0px, transparent 50%),
+    radial-gradient(at 50% 0%, rgba(2, 132, 199, 0.05) 0px, transparent 50%);
+  background-attachment: fixed;
+}
+
+/* Premium Glassmorphism styling */
 .glass {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(13, 20, 35, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Glowing container effects */
+.glow-brand {
+  box-shadow: 0 0 40px -5px rgba(2, 132, 199, 0.15);
+}
+
+.glow-brand-sm {
+  box-shadow: 0 0 15px -2px rgba(2, 132, 199, 0.12);
+}
+
+/* Interactive card hover transitions */
+.hover-card {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.hover-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(2, 132, 199, 0.25);
+  box-shadow: 0 12px 20px -8px rgba(0, 0, 0, 0.5), 0 0 15px -3px rgba(2, 132, 199, 0.15);
+}
+
+/* Segmented tab custom transitions */
+.tab-active {
+  background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+  box-shadow: 0 4px 12px -2px rgba(2, 132, 199, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+/* Styled Inputs with custom brand highlight borders */
+.input-premium {
+  background-color: rgba(9, 14, 25, 0.8) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.2s ease-in-out;
+}
+.input-premium:focus {
+  border-color: rgba(2, 132, 199, 0.5);
+  box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12);
+}
+
+/* Pulsing markers */
+@keyframes markerPulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
+  }
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+  }
+}
+.marker-glow-red {
+  animation: markerPulse 2s infinite;
 }

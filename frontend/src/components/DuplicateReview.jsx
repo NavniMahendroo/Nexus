@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Copy, Check, X, ShieldAlert, Layers } from 'lucide-react';
+import { Check, X, ShieldAlert, Merge, Sparkles } from 'lucide-react';
 
 export default function DuplicateReview() {
   const { authFetch } = useAuth();
@@ -74,82 +74,95 @@ export default function DuplicateReview() {
 
   if (candidates.length === 0) {
     return (
-      <div className="bg-slate-800/40 border border-slate-700/50 p-8 rounded-xl text-center text-slate-400 font-sans glass">
-        <Check className="w-8 h-8 mx-auto text-green-500 mb-2" />
-        No pending duplicate flags to review. All incoming reports are semantically distinct!
+      <div className="bg-slate-900/10 border border-slate-800/80 p-12 rounded-2xl text-center text-slate-400 font-sans glass glow-brand-sm">
+        <Check className="w-10 h-10 mx-auto text-green-400 mb-3" />
+        <span className="text-sm font-bold text-slate-300 block">Deduplication Clean</span>
+        <span className="text-xs text-slate-500 mt-1 block">No pending duplicate flags to review. All incoming reports are distinct.</span>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {candidates.map((cand) => {
         const similarityPct = (cand.similarity_score * 100).toFixed(0);
         return (
           <div 
             key={cand.id} 
-            className="bg-slate-800 border border-slate-700/80 rounded-xl overflow-hidden glass shadow-lg flex flex-col"
+            className="bg-slate-900/30 border border-slate-800/80 rounded-2xl overflow-hidden glass shadow-xl hover-card flex flex-col"
           >
             {/* Header info */}
-            <div className="flex items-center justify-between px-6 py-3 bg-slate-900/60 border-b border-slate-800">
-              <span className="text-xs text-brand-400 font-semibold tracking-wide flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4 text-orange-400" /> Potential Conflict Flagged
+            <div className="flex items-center justify-between px-6 py-4 bg-slate-950/60 border-b border-slate-850">
+              <span className="text-xs text-slate-200 font-bold tracking-wide flex items-center gap-2">
+                <ShieldAlert className="w-4 h-4 text-amber-500" /> Conflict Ingestion Review
               </span>
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400 font-mono">Similarity:</span>
-                <span className="text-sm font-bold font-mono text-orange-400">{similarityPct}% Match</span>
+              <div className="flex items-center gap-3">
+                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider font-mono">Similarity Index:</span>
+                <span className="text-xs font-black font-mono text-amber-400 px-2.5 py-1 rounded bg-amber-500/10 border border-amber-500/20">{similarityPct}% Match</span>
               </div>
             </div>
 
             {/* Side-by-Side Comparison */}
-            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-800">
+            <div className="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-slate-850">
               {/* Primary Report */}
-              <div className="p-5 space-y-2">
-                <div className="flex justify-between items-center text-xs text-slate-400">
-                  <span className="font-semibold uppercase tracking-wider text-brand-500 font-mono">Existing Report (ID: {cand.report.id})</span>
-                  <span>Category: <strong className="text-slate-200">{cand.report.category}</strong></span>
+              <div className="p-6 space-y-3 bg-slate-900/10">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-black uppercase tracking-wider text-brand-400 font-mono flex items-center gap-1">
+                    <Check className="w-3.5 h-3.5" /> Existing Report (ID: {cand.report.id})
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                    Category: {cand.report.category || 'N/A'}
+                  </span>
                 </div>
-                <p className="text-sm text-slate-200 leading-relaxed font-sans">{cand.report.description}</p>
-                <div className="flex gap-4 text-xs font-mono text-slate-400 pt-2">
-                  <span>Severity: <strong className="text-slate-300">{cand.report.severity}</strong></span>
-                  <span>Corroborations: <strong className="text-slate-300">{cand.report.corroboration_count}</strong></span>
+                <p className="text-xs text-slate-300 leading-relaxed font-sans font-medium">
+                  {cand.report.description}
+                </p>
+                <div className="flex gap-4 text-[10px] font-mono text-slate-500 pt-3 border-t border-slate-850/50">
+                  <span>Severity: <strong className="text-slate-400">{cand.report.severity}</strong></span>
+                  <span>Corroborations: <strong className="text-slate-400">{cand.report.corroboration_count}</strong></span>
                 </div>
               </div>
 
               {/* Duplicate Report */}
-              <div className="p-5 space-y-2">
-                <div className="flex justify-between items-center text-xs text-slate-400">
-                  <span className="font-semibold uppercase tracking-wider text-orange-500 font-mono">Incoming Report (ID: {cand.duplicate_report.id})</span>
-                  <span>Category: <strong className="text-slate-200">{cand.duplicate_report.category}</strong></span>
+              <div className="p-6 space-y-3 bg-slate-950/20">
+                <div className="flex justify-between items-center text-xs">
+                  <span className="font-black uppercase tracking-wider text-amber-500 font-mono flex items-center gap-1">
+                    <Sparkles className="w-3.5 h-3.5 text-amber-400" /> Incoming Report (ID: {cand.duplicate_report.id})
+                  </span>
+                  <span className="text-[10px] font-bold text-slate-400 bg-slate-950 px-2 py-0.5 rounded border border-slate-800">
+                    Category: {cand.duplicate_report.category || 'N/A'}
+                  </span>
                 </div>
-                <p className="text-sm text-slate-200 leading-relaxed font-sans">{cand.duplicate_report.description}</p>
-                <div className="flex gap-4 text-xs font-mono text-slate-400 pt-2">
-                  <span>Severity: <strong className="text-slate-300">{cand.duplicate_report.severity}</strong></span>
-                  <span>Corroborations: <strong className="text-slate-300">{cand.duplicate_report.corroboration_count}</strong></span>
+                <p className="text-xs text-slate-300 leading-relaxed font-sans font-medium">
+                  {cand.duplicate_report.description}
+                </p>
+                <div className="flex gap-4 text-[10px] font-mono text-slate-500 pt-3 border-t border-slate-850/50">
+                  <span>Severity: <strong className="text-slate-400">{cand.duplicate_report.severity}</strong></span>
+                  <span>Corroborations: <strong className="text-slate-400">{cand.duplicate_report.corroboration_count}</strong></span>
                 </div>
               </div>
             </div>
 
             {/* Actions Footer */}
-            <div className="flex justify-end gap-3 px-6 py-3 bg-slate-900/30 border-t border-slate-800">
+            <div className="flex justify-end gap-3 px-6 py-3 bg-slate-950/40 border-t border-slate-850">
               <button
                 onClick={() => handleReject(cand.id)}
                 disabled={actioningId !== null}
-                className="flex items-center gap-1.5 text-xs text-red-400 font-semibold px-3 py-1.5 rounded-lg border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 text-xs text-red-400 font-bold px-4 py-2 rounded-xl border border-red-500/15 bg-red-500/5 hover:bg-red-500/10 cursor-pointer transition-all active:scale-95"
               >
-                <X className="w-4 h-4" /> Keep Distinct
+                <X className="w-4 h-4" /> Reject (Keep Distinct)
               </button>
               <button
                 onClick={() => handleMerge(cand.id)}
                 disabled={actioningId !== null}
-                className="flex items-center gap-1.5 text-xs text-green-400 font-semibold px-4 py-1.5 rounded-lg border border-green-500/30 bg-green-500/10 hover:bg-green-500/20 transition-all cursor-pointer"
+                className="flex items-center gap-1.5 text-xs text-slate-900 bg-brand-500 hover:bg-brand-600 font-bold px-5 py-2 rounded-xl cursor-pointer transition-all active:scale-95 shadow-md shadow-brand-500/10"
               >
                 {actioningId === cand.id ? (
-                  <span className="animate-spin rounded-full h-3 w-3 border-t-2 border-green-400"></span>
+                  <span className="animate-spin rounded-full h-3.5 w-3.5 border-t-2 border-slate-900"></span>
                 ) : (
-                  <Copy className="w-4 h-4" />
+                  <Merge className="w-4 h-4 text-slate-950" />
                 )}
-                Merge to Task
+                Merge & Promote to Task
               </button>
             </div>
           </div>
