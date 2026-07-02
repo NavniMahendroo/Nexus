@@ -170,8 +170,15 @@ def list_proposed_assignments(
     claims: dict = Depends(require_role(["volunteer", "admin"]))
 ):
     """
-    Lists all assignments in the system.
+    Lists assignments. If the claims indicate the user is a volunteer,
+    filters the list to return only assignments matching their volunteer_id.
     """
+    role = claims.get("role")
+    if role == "volunteer":
+        v_id = claims.get("volunteer_id")
+        if v_id is not None:
+            return db.query(Assignment).filter(Assignment.volunteer_id == v_id).all()
+        return []
     return db.query(Assignment).all()
 
 @router.get("/compare", status_code=status.HTTP_200_OK)

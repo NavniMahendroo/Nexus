@@ -22,7 +22,23 @@ MOCK_USERS = {
     },
     "volunteer": {
         "password_hash": get_password_hash("volunteerpassword"),
-        "role": "volunteer"
+        "role": "volunteer",
+        "volunteer_id": 1
+    },
+    "volunteer1": {
+        "password_hash": get_password_hash("volunteerpassword"),
+        "role": "volunteer",
+        "volunteer_id": 1
+    },
+    "volunteer2": {
+        "password_hash": get_password_hash("volunteerpassword"),
+        "role": "volunteer",
+        "volunteer_id": 2
+    },
+    "volunteer3": {
+        "password_hash": get_password_hash("volunteerpassword"),
+        "role": "volunteer",
+        "volunteer_id": 3
     }
 }
 
@@ -32,6 +48,7 @@ def login(payload: LoginRequest):
     Minimal OAuth/JWT login route for demo users:
     - admin / adminpassword
     - volunteer / volunteerpassword
+    - volunteer1 / volunteerpassword
     """
     user_info = MOCK_USERS.get(payload.username)
     if not user_info:
@@ -46,7 +63,15 @@ def login(payload: LoginRequest):
             detail="Invalid username or password."
         )
         
-    token = create_access_token(subject=payload.username, role=user_info["role"])
+    extra = {}
+    if "volunteer_id" in user_info:
+        extra["volunteer_id"] = user_info["volunteer_id"]
+
+    token = create_access_token(
+        subject=payload.username, 
+        role=user_info["role"], 
+        additional_claims=extra
+    )
     return {
         "access_token": token,
         "token_type": "bearer",

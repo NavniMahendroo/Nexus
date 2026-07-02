@@ -133,7 +133,7 @@ Stores details of registered relief volunteers.
 * `contact_info` (String) - Contact details
 * `skills` (JSON) - String array of skills
 * `location` (Geography Point, srid=4326) - Volunteer location
-* `availability` (Boolean) - Availability toggle
+* `availability` (JSON) - Structured availability object
 
 ### `assignments`
 Connects volunteers and tasks.
@@ -229,6 +229,13 @@ Both paths reuse the shared service function `create_task_from_reports()` inside
    ```bash
    venv\Scripts\Activate.ps1
    pip install -r requirements.txt
+   ```
+
+3. **Database Seeding**:
+   Populate the database with realistic Seattle geospatial log data (approx. 500+ reports, 200+ volunteers, duplicate candidates, and tasks). For detailed instructions, refer to **[SEEDING.md](file:///c:/Users/Navni%20Mahendroo/Desktop/PROJECTS/Nexus/SEEDING.md)**:
+   ```bash
+   venv\Scripts\activate
+   python -m app.db.seed_data --reset
    ```
 
 3. **Verify Database Setup**:
