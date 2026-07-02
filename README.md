@@ -257,3 +257,21 @@ Use these pre-configured accounts to access the dashboards:
 * **Volunteer Dashboard**:
   * **Username**: `volunteer`
   * **Password**: `volunteerpassword`
+
+---
+
+## Troubleshooting & Database Connection Tips
+
+### Special Characters in Password
+If your local PostgreSQL password contains special characters (like `@`), they must be URL-encoded in the `DATABASE_URL` connection string:
+* `@` becomes `%40`
+* `#` becomes `%23`
+* `/` becomes `%2F`
+
+*Example:* `postgresql://postgres:p%40ssw0rd@localhost:5432/nexus`
+
+### Alembic ConfigParser Percent Error
+Alembic parses database connection strings internally as `.ini` property fields. If your connection string contains a percent symbol `%` (due to URL encoding), it can raise an `invalid interpolation syntax` error. 
+
+The application automatically escapes `%` as `%%` dynamically inside `app/db/env.py` to prevent this issue. No manual escaping of `%` is required inside the `.env` file.
+
