@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.core.database import get_db
 from app.core.security import require_role
 from app.models.task import Task
@@ -48,11 +48,21 @@ def create_task(payload: TaskCreate, db: Session = Depends(get_db)):
     return db_task
 
 @router.get("/", response_model=List[TaskResponse])
-def list_tasks(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_tasks(
+    organization_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
     """
-    Lists all Tasks.
+    Lists all Tasks, optionally filtered by organization.
     """
-    return db.query(Task).offset(skip).limit(limit).all()
+    query = db.query(Task)
+    if organization_id is not None:
+        # Use an IN subquery rather than JOIN + DISTINCT to avoid PostgreSQL JSON comparison errors
+        subquery = db.query(NeedReport.task_id).filter(NeedReport.reported_by_id == organization_id).subquery()
+        query = query.filter(Task.id.in_(subquery))
+    return query.offset(skip).limit(limit).all()
 
 @router.get("/{task_id}", response_model=TaskResponse)
 def get_task(task_id: int, db: Session = Depends(get_db)):

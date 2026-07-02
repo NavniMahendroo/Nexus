@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { ClipboardList, PlusCircle, CheckCircle, ArrowRight, ShieldAlert, Users, MapPin, Activity } from 'lucide-react';
 
-export default function RawReportsPanel({ onTaskCreated }) {
-  const { authFetch } = useAuth();
+export default function RawReportsPanel({ onTaskCreated, filterOrgId }) {
+  const { authFetch, organizationId } = useAuth();
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -22,10 +22,20 @@ export default function RawReportsPanel({ onTaskCreated }) {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  // Auto-fill reportedById if organizationId exists in AuthContext
+  useEffect(() => {
+    if (organizationId) {
+      setReportedById(organizationId);
+    }
+  }, [organizationId]);
+
   const fetchRawReports = async () => {
     setLoading(true);
     try {
-      const res = await authFetch('http://127.0.0.1:8000/api/reports/');
+      const url = filterOrgId
+        ? `http://127.0.0.1:8000/api/reports/?organization_id=${filterOrgId}`
+        : 'http://127.0.0.1:8000/api/reports/';
+      const res = await authFetch(url);
       if (res.ok) {
         const data = await res.json();
         // Filter for unconverted RAW need reports
@@ -41,7 +51,7 @@ export default function RawReportsPanel({ onTaskCreated }) {
 
   useEffect(() => {
     fetchRawReports();
-  }, []);
+  }, [filterOrgId]);
 
   const handleCreateReport = async (e) => {
     e.preventDefault();

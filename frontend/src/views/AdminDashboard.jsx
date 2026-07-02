@@ -17,10 +17,29 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('map'); // 'map', 'duplicates', 'matching'
   const [recomputing, setRecomputing] = useState(false);
 
+  // Organization filter states
+  const [organizations, setOrganizations] = useState([]);
+  const [selectedOrgId, setSelectedOrgId] = useState('');
+
+  const fetchOrganizations = async () => {
+    try {
+      const res = await authFetch('http://127.0.0.1:8000/api/organizations/');
+      if (res.ok) {
+        const data = await res.json();
+        setOrganizations(data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const fetchTasks = async () => {
     setLoadingTasks(true);
     try {
-      const res = await authFetch('http://127.0.0.1:8000/api/tasks/');
+      const url = selectedOrgId 
+        ? `http://127.0.0.1:8000/api/tasks/?organization_id=${selectedOrgId}`
+        : 'http://127.0.0.1:8000/api/tasks/';
+      const res = await authFetch(url);
       if (res.ok) {
         const data = await res.json();
         setTasks(data);
@@ -67,8 +86,14 @@ export default function AdminDashboard() {
     }
   };
 
+  // Re-fetch tasks when the organization filter changes
   useEffect(() => {
     fetchTasks();
+  }, [selectedOrgId]);
+
+  useEffect(() => {
+    fetchTasks();
+    fetchOrganizations();
   }, []);
 
   return (
@@ -87,14 +112,28 @@ export default function AdminDashboard() {
           </p>
         </div>
 
-        <button
-          onClick={handleTriggerRecompute}
-          disabled={recomputing}
-          className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-100 border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 py-3 px-5 rounded-xl cursor-pointer active:scale-95 transition-all shadow-lg hover-card shrink-0"
-        >
-          <RefreshCw className={`w-4 h-4 text-sky-400 ${recomputing ? 'animate-spin' : ''}`} />
-          {recomputing ? 'Recomputing Parameters...' : 'Recompute Urgency'}
-        </button>
+        <div className="flex flex-wrap items-center gap-3.5 shrink-0 w-full md:w-auto">
+          {/* Organization Dropdown Filter */}
+          <select
+            value={selectedOrgId}
+            onChange={(e) => setSelectedOrgId(e.target.value)}
+            className="bg-slate-950 border border-slate-850 rounded-xl text-xs py-3.5 px-4 text-slate-300 font-semibold focus:outline-none input-premium cursor-pointer w-full md:w-56"
+          >
+            <option value="">All Organizations</option>
+            {organizations.map(org => (
+              <option key={org.id} value={org.id}>{org.name}</option>
+            ))}
+          </select>
+
+          <button
+            onClick={handleTriggerRecompute}
+            disabled={recomputing}
+            className="flex items-center justify-center gap-1.5 text-xs font-bold text-slate-100 border border-slate-800 bg-slate-900/60 hover:bg-slate-900 hover:border-slate-700 py-3.5 px-5 rounded-xl cursor-pointer active:scale-95 transition-all shadow-lg hover-card w-full md:w-auto"
+          >
+            <RefreshCw className={`w-4 h-4 text-sky-400 ${recomputing ? 'animate-spin' : ''}`} />
+            {recomputing ? 'Recomputing Parameters...' : 'Recompute Urgency'}
+          </button>
+        </div>
       </div>
 
       {/* Main Tab Controller navigation */}
@@ -224,7 +263,7 @@ export default function AdminDashboard() {
             </h3>
             <p className="text-xs text-slate-500 mt-1">Ingest raw disaster needs and review non-duplicate reports awaiting conversion to active tasks.</p>
           </div>
-          <RawReportsPanel onTaskCreated={fetchTasks} />
+          <RawReportsPanel onTaskCreated={fetchTasks} filterOrgId={selectedOrgId} />
         </div>
       )}
     </div>

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 from sqlalchemy.orm import Session
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from app.core.database import get_db
 from app.models.need_report import NeedReport
 from app.models.organization import Organization
@@ -90,11 +90,19 @@ async def bulk_upload_need_reports(file: UploadFile = File(...), db: Session = D
     }
 
 @router.get("/", response_model=List[NeedReportResponse])
-def list_need_reports(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+def list_need_reports(
+    organization_id: Optional[int] = None,
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
     """
-    Retrieve list of raw need reports.
+    Retrieve list of raw need reports, optionally filtered by organization.
     """
-    return db.query(NeedReport).offset(skip).limit(limit).all()
+    query = db.query(NeedReport)
+    if organization_id is not None:
+        query = query.filter(NeedReport.reported_by_id == organization_id)
+    return query.offset(skip).limit(limit).all()
 
 from app.schemas.task import TaskResponse
 from app.services.task_creation import create_task_from_reports

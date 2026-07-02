@@ -1,3 +1,4 @@
+from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from app.core.security import create_access_token, get_password_hash, verify_password
@@ -13,12 +14,15 @@ class TokenResponse(BaseModel):
     token_type: str
     role: str
     username: str
+    volunteer_id: Optional[int] = None
+    organization_id: Optional[int] = None
 
 # Simple mock database of users for demo/interview purposes
 MOCK_USERS = {
     "admin": {
         "password_hash": get_password_hash("adminpassword"),
-        "role": "admin"
+        "role": "admin",
+        "organization_id": 1
     },
     "volunteer": {
         "password_hash": get_password_hash("volunteerpassword"),
@@ -66,6 +70,8 @@ def login(payload: LoginRequest):
     extra = {}
     if "volunteer_id" in user_info:
         extra["volunteer_id"] = user_info["volunteer_id"]
+    if "organization_id" in user_info:
+        extra["organization_id"] = user_info["organization_id"]
 
     token = create_access_token(
         subject=payload.username, 
@@ -76,5 +82,7 @@ def login(payload: LoginRequest):
         "access_token": token,
         "token_type": "bearer",
         "role": user_info["role"],
-        "username": payload.username
+        "username": payload.username,
+        "volunteer_id": user_info.get("volunteer_id"),
+        "organization_id": user_info.get("organization_id")
     }
