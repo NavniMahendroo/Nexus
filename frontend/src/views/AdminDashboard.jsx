@@ -4,7 +4,8 @@ import TaskMap from '../components/TaskMap';
 import UrgencyBreakdown from '../components/UrgencyBreakdown';
 import DuplicateReview from '../components/DuplicateReview';
 import MatchingPanel from '../components/MatchingPanel';
-import { Layers, ShieldAlert, GitPullRequest, AlertCircle, RefreshCw, BarChart2, Compass, LayoutGrid, Zap } from 'lucide-react';
+import RawReportsPanel from '../components/RawReportsPanel';
+import { Layers, ShieldAlert, GitPullRequest, AlertCircle, RefreshCw, BarChart2, Compass, LayoutGrid, Zap, ClipboardList } from 'lucide-react';
 
 export default function AdminDashboard() {
   const { authFetch } = useAuth();
@@ -128,6 +129,16 @@ export default function AdminDashboard() {
         >
           <GitPullRequest className="w-4 h-4" /> Pluggable Matching
         </button>
+        <button
+          onClick={() => setActiveTab('reports')}
+          className={`flex-1 sm:flex-initial flex items-center justify-center gap-2.5 px-5 py-2.5 text-xs font-bold rounded-xl transition-all cursor-pointer ${
+            activeTab === 'reports' 
+              ? 'tab-pill-active font-black' 
+              : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/40'
+          }`}
+        >
+          <ClipboardList className="w-4 h-4" /> Need Reports
+        </button>
       </div>
 
       {/* Content views switcher */}
@@ -202,6 +213,18 @@ export default function AdminDashboard() {
             <p className="text-xs text-slate-500 mt-1">Benchmark and analyze the Greedy allocator against the globally optimal Hungarian solver.</p>
           </div>
           <MatchingPanel />
+        </div>
+      )}
+
+      {activeTab === 'reports' && (
+        <div className="space-y-5 animate-fadeIn">
+          <div className="border-b border-slate-800 pb-3">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-slate-300 flex items-center gap-1.5">
+              <Zap className="w-4 h-4 text-sky-400" /> Raw Reports Ingestion Panel
+            </h3>
+            <p className="text-xs text-slate-500 mt-1">Ingest raw disaster needs and review non-duplicate reports awaiting conversion to active tasks.</p>
+          </div>
+          <RawReportsPanel onTaskCreated={fetchTasks} />
         </div>
       )}
     </div>

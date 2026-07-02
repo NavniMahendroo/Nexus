@@ -95,3 +95,27 @@ def list_need_reports(skip: int = 0, limit: int = 100, db: Session = Depends(get
     Retrieve list of raw need reports.
     """
     return db.query(NeedReport).offset(skip).limit(limit).all()
+
+from app.schemas.task import TaskResponse
+from app.services.task_creation import create_task_from_reports
+
+@router.post("/{report_id}/convert-to-task", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
+def convert_report_to_task(report_id: int, db: Session = Depends(get_db)):
+    """
+    Convert a single raw NeedReport into an actionable Task.
+    """
+    report = db.query(NeedReport).filter(NeedReport.id == report_id).first()
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"NeedReport with id {report_id} not found."
+        )
+
+    if report.status in (NeedStatus.MERGED, NeedStatus.CONVERTED_TO_TASK):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Report with id {report_id} has already been converted or merged (status: {report.status.value})."
+        )
+
+    task = create_task_from_reports([report], db)
+    return task
