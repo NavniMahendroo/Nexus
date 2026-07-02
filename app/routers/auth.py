@@ -27,22 +27,26 @@ MOCK_USERS = {
     "volunteer": {
         "password_hash": get_password_hash("volunteerpassword"),
         "role": "volunteer",
-        "volunteer_id": 1
+        "volunteer_id": 1,
+        "organization_id": 2
     },
     "volunteer1": {
         "password_hash": get_password_hash("volunteerpassword"),
         "role": "volunteer",
-        "volunteer_id": 1
+        "volunteer_id": 1,
+        "organization_id": 2
     },
     "volunteer2": {
         "password_hash": get_password_hash("volunteerpassword"),
         "role": "volunteer",
-        "volunteer_id": 2
+        "volunteer_id": 2,
+        "organization_id": 3
     },
     "volunteer3": {
         "password_hash": get_password_hash("volunteerpassword"),
         "role": "volunteer",
-        "volunteer_id": 3
+        "volunteer_id": 3,
+        "organization_id": 4
     }
 }
 

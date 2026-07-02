@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Check, X, ShieldAlert, Navigation, Calendar, Award, Compass, Sparkles, User, Briefcase, Activity, Inbox, FolderCheck, Archive, Zap } from 'lucide-react';
+import { Check, X, ShieldAlert, Navigation, Calendar, Award, Compass, Sparkles, User, Briefcase, Activity, Inbox, FolderCheck, Archive, Zap, Settings } from 'lucide-react';
 
 export default function VolunteerDashboard() {
-  const { authFetch, username } = useAuth();
+  const { authFetch, username, organizationId } = useAuth();
   const [assignments, setAssignments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actioningId, setActioningId] = useState(null);
   const [activeSubTab, setActiveSubTab] = useState('pending'); // 'pending', 'active', 'completed'
+  const [showSettings, setShowSettings] = useState(false);
 
   const fetchAssignments = async () => {
     setLoading(true);
@@ -113,9 +114,13 @@ export default function VolunteerDashboard() {
             Review proposed assignments, coordinate active missions, and update task statuses to ensure seamless field logistics.
           </p>
         </div>
-        <div className="hidden md:flex h-16 w-16 items-center justify-center rounded-2xl bg-sky-500/5 border border-sky-500/15 text-sky-400 shadow-xl shadow-slate-950 shrink-0">
-          <User className="w-8 h-8" />
-        </div>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="h-16 w-16 flex items-center justify-center rounded-2xl bg-sky-500/5 border border-sky-500/15 hover:border-sky-400 hover:bg-sky-500/10 text-sky-400 shadow-xl shadow-slate-950 hover:scale-105 transition-all cursor-pointer group shrink-0"
+          title="Profile & Settings"
+        >
+          <Settings className="w-8 h-8 group-hover:rotate-45 transition-transform duration-300" />
+        </button>
       </div>
 
       {/* Segmented Sub-Tab Control */}
@@ -314,6 +319,55 @@ export default function VolunteerDashboard() {
           </div>
         )}
       </div>
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-sm w-full p-6 space-y-6 shadow-2xl relative animate-slideUp">
+            
+            <button 
+              onClick={() => setShowSettings(false)}
+              className="absolute top-4 right-4 text-slate-400 hover:text-slate-200 cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex flex-col items-center space-y-3.5 border-b border-slate-850 pb-5">
+              <img 
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=256&h=256&q=80" 
+                alt="Profile Avatar"
+                className="w-20 h-20 rounded-full border-2 border-brand-500 shadow-lg object-cover"
+              />
+              <div className="text-center">
+                <h3 className="text-lg font-black text-slate-100">{username}</h3>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500">nexus volunteer profile</span>
+              </div>
+            </div>
+
+            <div className="space-y-4 text-xs font-semibold text-slate-300">
+              <div className="flex items-center justify-between py-2.5 border-b border-slate-850">
+                <span className="text-slate-500 uppercase tracking-wider text-[9px] font-black">Associated NGO ID</span>
+                <span className="px-2.5 py-1 bg-slate-950 text-slate-300 border border-slate-850 rounded-lg">
+                  {organizationId || 'None'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between py-2.5">
+                <span className="text-slate-500 uppercase tracking-wider text-[9px] font-black">Platform Role</span>
+                <span className="px-2.5 py-1 bg-slate-950 text-sky-400 border border-slate-850 rounded-lg uppercase tracking-wide text-[10px]">
+                  Volunteer
+                </span>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setShowSettings(false)}
+              className="w-full text-xs font-bold text-slate-950 bg-brand-500 hover:bg-brand-600 rounded-xl py-3 cursor-pointer transition-all active:scale-[0.98]"
+            >
+              Close Settings
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
