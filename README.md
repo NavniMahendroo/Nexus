@@ -287,9 +287,13 @@ Use these pre-configured accounts to access the dashboards:
 * **NGO Administrator Dashboard**:
   * **Username**: `admin`
   * **Password**: `adminpassword`
-* **Volunteer Dashboard**:
-  * **Username**: `volunteer`
-  * **Password**: `volunteerpassword`
+  * **Mapped Organization**: Linked to Organization ID `1` (**Seattle Community Food Bank**). Ingesting reports will auto-fill this value, but remains editable.
+* **Volunteer Dashboards**:
+  * **Password**: `volunteerpassword` (shared for all volunteers)
+  * **Usernames**:
+    * `volunteer` or `volunteer1`: Maps to Volunteer ID `1` (**Alex Medic**), who has 1 resolved mission visible in their **Completed Archive** tab.
+    * `volunteer2`: Maps to Volunteer ID `2` (**Jordan Shelter**), who has 1 active mission visible in their **Active Missions** tab.
+    * `volunteer3`: Maps to Volunteer ID `3` (**Taylor Water**), who has a pending mission proposal visible in their **Proposals** tab.
 
 ---
 
