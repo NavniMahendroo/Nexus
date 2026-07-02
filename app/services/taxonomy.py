@@ -4,7 +4,7 @@ from typing import Optional
 TAXONOMY_KEYWORDS = {
     "water": ["water", "drink", "h2o", "hydration", "well", "thirst", "bottle", "aqueduct"],
     "medical": ["medical", "doctor", "nurse", "medicine", "pill", "wound", "injured", "injury", "sick", "hospital", "clinic", "health", "first aid", "bandage", "treatment"],
-    "shelter": ["shelter", "house", "tent", "roof", "sleep", "bed", "housing", "blanket", "building", "home", "accommodation"],
+    "shelter": ["shelter", "house", "tent", "tents", "refugee", "refugees", "displaced", "roof", "sleep", "bed", "housing", "blanket", "building", "home", "accommodation"],
     "food": ["food", "eat", "meal", "rice", "bread", "grocery", "groceries", "nutrition", "starving", "starve", "hunger", "hungry", "kitchen", "ration", "canned"]
 }
 

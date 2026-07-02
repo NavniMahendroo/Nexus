@@ -10,11 +10,11 @@ def test_greedy_urgency_priority():
     even if it consumes a volunteer that could also fit a lower-urgency task.
     """
     # Two tasks requiring medical skills, one is highly urgent, one is low urgency.
-    task_urgent = Task(id=1, title="Critical Injury Clinic", required_skills=["medical"], urgency_score=9.0)
-    task_low = Task(id=2, title="First Aid Training", required_skills=["medical"], urgency_score=3.0)
+    task_urgent = Task(id=1, title="Critical Injury Clinic", required_skills=["medical"], urgency_score=9.0, location="POINT(-122.33 47.60)")
+    task_low = Task(id=2, title="First Aid Training", required_skills=["medical"], urgency_score=3.0, location="POINT(-122.33 47.60)")
     
     # Only one volunteer available who has the required skill
-    volunteer = Volunteer(id=101, name="Dr. Alex", skills=["medical"], availability={"slots": "weekend"})
+    volunteer = Volunteer(id=101, name="Dr. Alex", skills=["medical"], availability={"slots": "weekend"}, location="POINT(-122.33 47.60)")
     
     greedy = GreedyMatchingStrategy()
     # Execute matching
@@ -57,11 +57,11 @@ def test_optimal_vs_greedy_utility():
     - Total Match Score = 1.7.
     - Total Urgency-Weighted Coverage = 9.0*0.7 + 8.0*1.0 = 6.3 + 8.0 = 14.3
     """
-    task_a = Task(id=1, title="Need clinic & tent support", required_skills=["medical", "shelter"], urgency_score=9.0)
-    task_b = Task(id=2, title="Need medic checkup", required_skills=["medical"], urgency_score=8.0)
+    task_a = Task(id=1, title="Need clinic & tent support", required_skills=["medical", "shelter"], urgency_score=9.0, location="POINT(-122.33 47.60)")
+    task_b = Task(id=2, title="Need medic checkup", required_skills=["medical"], urgency_score=8.0, location="POINT(-122.33 47.60)")
     
-    vol_x = Volunteer(id=101, name="Medic X", skills=["medical"], availability={"status": "active"})
-    vol_y = Volunteer(id=102, name="Shelter Y", skills=["shelter"], availability={"status": "active"})
+    vol_x = Volunteer(id=101, name="Medic X", skills=["medical"], availability={"status": "active"}, location="POINT(-122.33 47.60)")
+    vol_y = Volunteer(id=102, name="Shelter Y", skills=["shelter"], availability={"status": "active"}, location="POINT(-122.33 47.60)")
     
     # 1. Run Greedy
     greedy = GreedyMatchingStrategy()
@@ -102,14 +102,14 @@ def test_no_double_assignments():
     Test 3: Assert that a volunteer is never assigned to multiple tasks in a single matching run.
     """
     tasks = [
-        Task(id=1, title="Task 1", required_skills=["medical"], urgency_score=5.0),
-        Task(id=2, title="Task 2", required_skills=["medical"], urgency_score=4.0),
-        Task(id=3, title="Task 3", required_skills=["medical"], urgency_score=3.0)
+        Task(id=1, title="Task 1", required_skills=["medical"], urgency_score=5.0, location="POINT(-122.33 47.60)"),
+        Task(id=2, title="Task 2", required_skills=["medical"], urgency_score=4.0, location="POINT(-122.33 47.60)"),
+        Task(id=3, title="Task 3", required_skills=["medical"], urgency_score=3.0, location="POINT(-122.33 47.60)")
     ]
     
     volunteers = [
-        Volunteer(id=101, name="Vol 1", skills=["medical"], availability={"status": "yes"}),
-        Volunteer(id=102, name="Vol 2", skills=["medical"], availability={"status": "yes"})
+        Volunteer(id=101, name="Vol 1", skills=["medical"], availability={"status": "yes"}, location="POINT(-122.33 47.60)"),
+        Volunteer(id=102, name="Vol 2", skills=["medical"], availability={"status": "yes"}, location="POINT(-122.33 47.60)")
     ]
     
     greedy = GreedyMatchingStrategy()
