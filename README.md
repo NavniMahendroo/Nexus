@@ -161,16 +161,17 @@ Stores flagged duplicate need reports for review.
 ### Authentication Router
 * `POST /api/auth/login` - Authenticates user credentials and returns a JWT token.
   * **Payload**: `{ "username": "admin", "password": "adminpassword" }`
-  * **Response**: Includes `access_token`, `token_type`, `role`, and `username`.
+  * **Response**: Includes `access_token`, `token_type`, `role`, `username`, and optional `volunteer_id` / `organization_id` claims.
 
 ### Need Reports Router
 * `POST /api/reports/` - Ingests a new need report, normalizes category, generates description embedding, runs duplicate detection, and registers duplicate flags.
+  * **Auto-fill**: Auto-fills the reporter NGO ID from the admin's JWT claim if present.
 * `POST /api/reports/bulk` - Uploads a CSV/Excel file containing multiple reports, parses rows, runs batch deduplication, and commits records.
-* `GET /api/reports/` - Lists ingested need reports.
+* `GET /api/reports/` - Lists ingested need reports. Supports optional `organization_id` query parameter filtering.
 * `POST /api/reports/{report_id}/convert-to-task` - Converts a RAW unlinked NeedReport to a Task, linking them together and calculating task urgency.
 
 ### Tasks Router
-* `GET /api/tasks/` - Lists tasks.
+* `GET /api/tasks/` - Lists tasks. Supports optional `organization_id` query parameter filtering (filtering by the reporting NGO of the underlying reports).
 * `GET /api/tasks/{id}/urgency-breakdown` - Returns the detailed math breakdown behind a task's urgency score.
 * `POST /api/tasks/recompute-urgency` - (Admin only) Triggers batch urgency recalculations for all open tasks.
 
@@ -203,8 +204,8 @@ Both paths reuse the shared service function `create_task_from_reports()` inside
 ## Workspace Dashboards Structure
 
 ### NGO Administrator Dashboard
-* **Live Map & Urgency**: Features PostGIS geospatial distribution plots and Leaflet heatmap layers, paired with real-time Urgency Score parameter breakdowns.
-* **Need Reports Ingestion**: Prominent portal for submitting raw report forms and reviewing/converting the unlinked reports queue.
+* **Live Map & Urgency**: Features PostGIS geospatial distribution plots and Leaflet heatmap layers, paired with real-time Urgency Score parameter breakdowns. Includes a global **Organization Filter Dropdown** to filter map pins and heatmaps by the reporting NGO.
+* **Need Reports Ingestion**: Prominent portal for submitting raw report forms (with auto-fill of the administrator's NGO ID) and reviewing/converting the filtered reports queue.
 * **Duplicate Review**: Double-panel cosines similarity comparator for merging or rejecting semantic duplicate candidates.
 * **Pluggable Matching**: Strategy benchmarks optimizer grid to assign volunteers using Greedy vs Hungarian assignment models.
 
@@ -225,23 +226,16 @@ Both paths reuse the shared service function `create_task_from_reports()` inside
    APP_NAME="Nexus Disaster Relief Hub"
    ```
 
-2. **Install Dependencies**:
-   ```bash
-   venv\Scripts\Activate.ps1
-   pip install -r requirements.txt
-   ```
-
-3. **Database Seeding**:
-   Populate the database with realistic Seattle geospatial log data (approx. 500+ reports, 200+ volunteers, duplicate candidates, and tasks). For detailed instructions, refer to **[SEEDING.md](file:///c:/Users/Navni%20Mahendroo/Desktop/PROJECTS/Nexus/SEEDING.md)**:
-   ```bash
-   venv\Scripts\activate
-   python -m app.db.seed_data --reset
-   ```
-
-3. **Verify Database Setup**:
+2. **Verify Database Setup**:
    Ensure PostgreSQL is running and has the PostGIS extension enabled:
    ```sql
    CREATE EXTENSION IF NOT EXISTS postgis;
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   venv\Scripts\Activate.ps1
+   pip install -r requirements.txt
    ```
 
 4. **Run Alembic Migrations**:
@@ -249,7 +243,14 @@ Both paths reuse the shared service function `create_task_from_reports()` inside
    venv\Scripts\alembic upgrade head
    ```
 
-5. **Start Dev Server**:
+5. **Database Seeding**:
+   Populate the database with realistic Seattle geospatial log data (approx. 500+ reports, 200+ volunteers, duplicate candidates, and tasks). For detailed instructions, refer to **[SEEDING.md](file:///c:/Users/Navni%20Mahendroo/Desktop/PROJECTS/Nexus/SEEDING.md)**:
+   ```bash
+   venv\Scripts\activate
+   python -m app.db.seed_data --reset
+   ```
+
+6. **Start Dev Server**:
    ```bash
    $env:TESTING="false"
    venv\Scripts\uvicorn app.main:app --reload
