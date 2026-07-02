@@ -167,6 +167,7 @@ Stores flagged duplicate need reports for review.
 * `POST /api/reports/` - Ingests a new need report, normalizes category, generates description embedding, runs duplicate detection, and registers duplicate flags.
 * `POST /api/reports/bulk` - Uploads a CSV/Excel file containing multiple reports, parses rows, runs batch deduplication, and commits records.
 * `GET /api/reports/` - Lists ingested need reports.
+* `POST /api/reports/{report_id}/convert-to-task` - Converts a RAW unlinked NeedReport to a Task, linking them together and calculating task urgency.
 
 ### Tasks Router
 * `GET /api/tasks/` - Lists tasks.
@@ -187,6 +188,30 @@ Stores flagged duplicate need reports for review.
 
 ### Volunteer Router
 * `GET /api/volunteers/nearby` - Finds volunteers within a radius sorted by distance.
+
+---
+
+## Report-Driven Task Creation Workflow
+To prevent stand-alone or hypothetical tasks from drifting from field realities, Tasks can **only** be created from verified Need Reports in two ways:
+1. **Single Report Conversion**: Converting an un-flagged RAW report via the **Need Reports Ingestion Console** (`POST /api/reports/{id}/convert-to-task`).
+2. **Semantic Merge**: Merging two duplicate flagged reports through the deduplication review console (`POST /api/admin/duplicate-candidates/{id}/merge`).
+
+Both paths reuse the shared service function `create_task_from_reports()` inside `app/services/task_creation.py` to ensure consistency.
+
+---
+
+## Workspace Dashboards Structure
+
+### NGO Administrator Dashboard
+* **Live Map & Urgency**: Features PostGIS geospatial distribution plots and Leaflet heatmap layers, paired with real-time Urgency Score parameter breakdowns.
+* **Need Reports Ingestion**: Prominent portal for submitting raw report forms and reviewing/converting the unlinked reports queue.
+* **Duplicate Review**: Double-panel cosines similarity comparator for merging or rejecting semantic duplicate candidates.
+* **Pluggable Matching**: Strategy benchmarks optimizer grid to assign volunteers using Greedy vs Hungarian assignment models.
+
+### Volunteer Dashboard
+* **Pending Proposals**: Lists new proposed match assignments waiting for confirmation.
+* **Active Missions**: Displays accepted assignments with state badges and task progress controls ("Start Task" and "Resolve Task").
+* **Completed Archive**: Holds histories of resolved assignments.
 
 ---
 
