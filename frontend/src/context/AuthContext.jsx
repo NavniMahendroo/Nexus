@@ -29,7 +29,8 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (usernameInput, passwordInput) => {
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+      const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+      const response = await fetch(`${apiBaseUrl}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username: usernameInput, password: passwordInput })
@@ -76,8 +77,18 @@ export const AuthProvider = ({ children }) => {
     setVolunteerId(null);
   };
 
-  // Helper API fetch wrapper with automatic JWT Authorization header
+  // Helper API fetch wrapper with automatic JWT Authorization header and base URL hot-patching
   const authFetch = async (url, options = {}) => {
+    const apiBaseUrl = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
+    let targetUrl = url;
+    
+    // Rewrite local API endpoints to the deployed server URL if configured
+    if (url.startsWith('http://127.0.0.1:8000')) {
+      targetUrl = url.replace('http://127.0.0.1:8000', apiBaseUrl);
+    } else if (url.startsWith('http://localhost:8000')) {
+      targetUrl = url.replace('http://localhost:8000', apiBaseUrl);
+    }
+
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -85,7 +96,7 @@ export const AuthProvider = ({ children }) => {
     if (token) {
       headers['Authorization'] = `Bearer ${token}`;
     }
-    const res = await fetch(url, { ...options, headers });
+    const res = await fetch(targetUrl, { ...options, headers });
     if (res.status === 401) {
       logout();
       throw new Error('Session expired, please log in again.');
