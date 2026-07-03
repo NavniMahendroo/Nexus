@@ -10,9 +10,18 @@ if not hasattr(bcrypt, "__about__"):
         __version__ = getattr(bcrypt, "__version__", "4.0.1")
     bcrypt.__about__ = BcryptAbout
 
-# Hot-patch passlib to prevent ValueError when modern bcrypt raises errors on 72+ character check passwords
-import passlib.handlers.bcrypt
-passlib.handlers.bcrypt.detect_wrap_bug = lambda handler: False
+# Hot-patch bcrypt.hashpw to truncate inputs > 72 bytes instead of raising ValueError.
+# This makes passlib's startup wrap-bug check pass without throwing exceptions.
+original_hashpw = bcrypt.hashpw
+def wrapped_hashpw(password, salt):
+    if isinstance(password, bytes) and len(password) > 72:
+        password = password[:72]
+    elif isinstance(password, str):
+        encoded = password.encode('utf-8')
+        if len(encoded) > 72:
+            password = encoded[:72].decode('utf-8', errors='ignore')
+    return original_hashpw(password, salt)
+bcrypt.hashpw = wrapped_hashpw
 
 from passlib.context import CryptContext
 from dotenv import load_dotenv
