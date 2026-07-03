@@ -1,7 +1,15 @@
 import os
 import jwt
+import bcrypt
 from datetime import datetime, timedelta, timezone
 from typing import Union, Any
+
+# Hot-patch passlib compatibility with modern bcrypt versions (which lack __about__)
+if not hasattr(bcrypt, "__about__"):
+    class BcryptAbout:
+        __version__ = getattr(bcrypt, "__version__", "4.0.1")
+    bcrypt.__about__ = BcryptAbout
+
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 
