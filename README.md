@@ -1,5 +1,13 @@
 # Nexus - Intelligent Disaster Relief Matching Platform
 
+> **Nexus** is the third version of this project.
+
+### Deployed Links
+* **Frontend (Vercel)**: [https://nexus-sigma-lake.vercel.app/](https://nexus-sigma-lake.vercel.app/)
+* **Backend API (Render)**: [https://nexus-74hw.onrender.com/](https://nexus-74hw.onrender.com/)
+
+---
+
 Nexus is an intelligent, high-performance community need aggregation and volunteer matching engine designed for humanitarian and disaster relief organizations. The platform ingests unstructured disaster need reports from the field, normalizes their taxonomy, dynamically scores task urgency with recency time decay, resolves duplicate conflict flags using machine learning embeddings, and coordinates volunteer-to-task routing using geospatial indices and pluggable optimization algorithms.
 
 ---
