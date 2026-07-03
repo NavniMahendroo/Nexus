@@ -10,6 +10,10 @@ if not hasattr(bcrypt, "__about__"):
         __version__ = getattr(bcrypt, "__version__", "4.0.1")
     bcrypt.__about__ = BcryptAbout
 
+# Hot-patch passlib to prevent ValueError when modern bcrypt raises errors on 72+ character check passwords
+import passlib.handlers.bcrypt
+passlib.handlers.bcrypt.detect_wrap_bug = lambda handler: False
+
 from passlib.context import CryptContext
 from dotenv import load_dotenv
 
